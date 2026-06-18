@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Hamburg Database</title>
+    <!-- Подключаем скрипт Telegram Web App -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            margin: 0;
+            padding: 15px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--tg-theme-hint-color, #ccc);
+        }
+        .tab {
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--tg-theme-hint-color, #888);
+        }
+        .tab.active {
+            color: var(--tg-theme-button-color, #2481cc);
+            border-bottom: 3px solid var(--tg-theme-button-color, #2481cc);
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .card {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .badge.red { background-color: #ff4d4d; }
+        .badge.green { background-color: #2ec4b6; }
+        .badge.blue { background-color: #0077b6; }
+    </style>
+</head>
+<body>
+
+    <div class="header">🚨 Hamburg PS - База Данных 🚨</div>
+
+    <!-- Вкладки -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('wanted')">Розыск</div>
+        <div class="tab" onclick="switchTab('licenses')">Лицензии</div>
+        <div class="tab" onclick="switchTab('factions')">Фракции</div>
+    </div>
+
+    <!-- Раздел: Розыск -->
+    <div id="wanted" class="content-section active">
+        <div class="card">
+            <h3>Игрок: Имя_Пользователя1</h3>
+            <p>Статус: <span class="badge red">ООП (5 Звёзд)</span></p>
+            <p>Причина: Ограбление банка, уход от полиции.</p>
+        </div>
+        <div class="card">
+            <h3>Игрок: Скоростной_Гонщик</h3>
+            <p>Статус: <span class="badge red">В розыске (2 Звезды)</span></p>
+            <p>Причина: Неоплата штрафов за превышение.</p>
+        </div>
+    </div>
+
+    <!-- Раздел: Лицензии -->
+    <div id="licenses" class="content-section">
+        <div class="card">
+            <h3>Твои Лицензии (Пример)</h3>
+            <p>Водительские права: <span class="badge green">АКТИВНЫ</span></p>
+            <p>Лицензия на оружие: <span class="badge red">НЕТ / ИЗЪЯТА</span></p>
+            <p>Лицензия дальнобойщика: <span class="badge green">АКТИВНЫ</span></p>
+        </div>
+    </div>
+
+    <!-- Раздел: Фракции -->
+    <div id="factions" class="content-section">
+        <div class="card">
+            <h3><span class="badge blue">Полиция (Police Department)</span></h3>
+            <p>Доступные роли: Patrol, Traffic, Undercover, SEK.</p>
+        </div>
+        <div class="card">
+            <h3><span class="badge red">Пожарные (Fire Department)</span></h3>
+            <p>Задачи: Тушение пожаров, ликвидация ДТП.</p>
+        </div>
+        <div class="card">
+            <h3><span class="badge green">Механики (Car Mechanic)</span></h3>
+            <p>Задачи: Эвакуация и ремонт авто.</p>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Расширяет окно на весь экран приложения
+
+        // Логика переключения вкладок
+        function switchTab(tabId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
