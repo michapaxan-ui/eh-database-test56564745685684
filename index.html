@@ -3,133 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emergency Hamburg Database</title>
-    <!-- Подключаем скрипт Telegram Web App -->
+    <title>Emergency Hamburg CAD System</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #1a1a24);
+            --text-color: var(--tg-theme-text-color, #ffffff);
+            --card-bg: var(--tg-theme-secondary-bg-color, #242432);
+            --accent-color: #2f80ed;
+            --danger-color: #eb5757;
+            --success-color: #27ae60;
+            --warning-color: #f2994a;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 15px;
+            padding-bottom: 80px;
         }
-        .header {
+
+        .header-panel {
+            background: linear-gradient(135deg, #1f4068, #162447);
+            padding: 15px;
+            border-radius: 12px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             margin-bottom: 20px;
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 1px;
         }
-        .tabs {
+
+        .header-panel h1 {
+            margin: 0;
+            font-size: 18px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .header-panel p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* Поиск */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        /* Карточка игрока (База данных) */
+        .player-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .player-card.wanted {
+            border-left-color: var(--danger-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        .username {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-badge.red { background-color: var(--danger-color); }
+        .status-badge.green { background-color: var(--success-color); }
+        .status-badge.blue { background-color: var(--accent-color); }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .info-label { opacity: 0.6; }
+
+        .btn-action {
+            width: 100%;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .btn-action.danger { background-color: var(--danger-color); }
+
+        /* Нижнее меню навигации (как в ТГ) */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--card-bg);
             display: flex;
             justify-content: space-around;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--tg-theme-hint-color, #ccc);
+            padding: 10px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
         }
-        .tab {
-            padding: 10px;
+
+        .nav-item {
+            text-align: center;
+            font-size: 11px;
+            opacity: 0.5;
             cursor: pointer;
-            font-weight: bold;
-            color: var(--tg-theme-hint-color, #888);
+            flex: 1;
         }
-        .tab.active {
-            color: var(--tg-theme-button-color, #2481cc);
-            border-bottom: 3px solid var(--tg-theme-button-color, #2481cc);
+
+        .nav-item.active {
+            opacity: 1;
+            color: var(--accent-color);
         }
-        .content-section {
-            display: none;
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
         }
-        .content-section.active {
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* Форма */
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
             display: block;
-        }
-        .card {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 5px;
             font-size: 12px;
-            font-weight: bold;
-            color: #fff;
+            margin-bottom: 5px;
+            opacity: 0.8;
         }
-        .badge.red { background-color: #ff4d4d; }
-        .badge.green { background-color: #2ec4b6; }
-        .badge.blue { background-color: #0077b6; }
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">🚨 Hamburg PS - База Данных 🚨</div>
-
-    <!-- Вкладки -->
-    <div class="tabs">
-        <div class="tab active" onclick="switchTab('wanted')">Розыск</div>
-        <div class="tab" onclick="switchTab('licenses')">Лицензии</div>
-        <div class="tab" onclick="switchTab('factions')">Фракции</div>
+    <div class="header-panel">
+        <h1>Полиция Гамбурга: ТЦУ</h1>
+        <p>Терминал Цифрового Учета • Emergency Hamburg</p>
     </div>
 
-    <!-- Раздел: Розыск -->
-    <div id="wanted" class="content-section active">
-        <div class="card">
-            <h3>Игрок: Имя_Пользователя1</h3>
-            <p>Статус: <span class="badge red">ООП (5 Звёзд)</span></p>
-            <p>Причина: Ограбление банка, уход от полиции.</p>
+    <div id="page-database" class="page active">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Поиск игрока по нику в Roblox..." onkeyup="searchPlayer()">
         </div>
-        <div class="card">
-            <h3>Игрок: Скоростной_Гонщик</h3>
-            <p>Статус: <span class="badge red">В розыске (2 Звезды)</span></p>
-            <p>Причина: Неоплата штрафов за превышение.</p>
+
+        <div id="players-list">
+            <div class="player-card wanted" data-name="alex_roblox">
+                <div class="card-header">
+                    <span class="username">Alex_Roblox</span>
+                    <span class="status-badge red">ООП (★ 5)</span>
+                </div>
+                <div class="info-row"><span class="info-label">Фракция:</span> <span>Гражданский</span></div>
+                <div class="info-row"><span class="info-label">Лицензия (Авто):</span> <span style="color:var(--success-color)">Есть</span></div>
+                <div class="info-row"><span class="info-label">Лицензия (Оружие):</span> <span style="color:var(--danger-color)">Изъята</span></div>
+                <div class="info-row"><span class="info-label">Причина:</span> <span>Вооруженный налет на инкассаторов</span></div>
+                <button class="btn-action danger" onclick="alert('Запрос на задержание отправлен!')">Подать в перехват</button>
+            </div>
+
+            <div class="player-card" data-name="max_commander">
+                <div class="card-header">
+                    <span class="username">Max_Commander</span>
+                    <span class="status-badge blue">Полиция (SEK)</span>
+                </div>
+                <div class="info-row"><span class="info-label">Звание:</span> <span>Лейтенант</span></div>
+                <div class="info-row"><span class="info-label">Лицензия (Авто):</span> <span style="color:var(--success-color)">Есть</span></div>
+                <div class="info-row"><span class="info-label">Лицензия (Оружие):</span> <span style="color:var(--success-color)">Есть</span></div>
+                <div class="info-row"><span class="info-label">Статус:</span> <span>На дежурстве</span></div>
+            </div>
         </div>
     </div>
 
-    <!-- Раздел: Лицензии -->
-    <div id="licenses" class="content-section">
-        <div class="card">
-            <h3>Твои Лицензии (Пример)</h3>
-            <p>Водительские права: <span class="badge green">АКТИВНЫ</span></p>
-            <p>Лицензия на оружие: <span class="badge red">НЕТ / ИЗЪЯТА</span></p>
-            <p>Лицензия дальнобойщика: <span class="badge green">АКТИВНЫ</span></p>
+    <div id="page-actions" class="page">
+        <div class="player-card">
+            <h3 style="margin-top:0;">Внести изменения в базу</h3>
+            <div class="form-group">
+                <label>Никнейм нарушителя</label>
+                <input type="text" placeholder="Пример: RobloxPlayer123">
+            </div>
+            <div class="form-group">
+                <label>Уровень розыска</label>
+                <select>
+                    <option>1 Звезда (Штрафы)</option>
+                    <option>2 Звезды (Неподчинение)</option>
+                    <option>3 Звезды (Угон)</option>
+                    <option>4 Звезды (Нападение)</option>
+                    <option>5 Звезд (Ограбление / ООП)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Причина / Статья</label>
+                <input type="text" placeholder="Укажите пункт устава/кодекса">
+            </div>
+            <button class="btn-action" onclick="tg.sendData('База обновлена!'); tg.close();">Обновить базу данных</button>
         </div>
     </div>
 
-    <!-- Раздел: Фракции -->
-    <div id="factions" class="content-section">
-        <div class="card">
-            <h3><span class="badge blue">Полиция (Police Department)</span></h3>
-            <p>Доступные роли: Patrol, Traffic, Undercover, SEK.</p>
+    <div id="page-settings" class="page">
+        <div class="player-card">
+            <h3>Параметры КПК</h3>
+            <p>Статус подключения: <span style="color:var(--success-color)">Стабильно</span></p>
+            <p>Версия базы: v2.4-EH</p>
+            <p>Доступ: Администрация фракции</p>
         </div>
-        <div class="card">
-            <h3><span class="badge red">Пожарные (Fire Department)</span></h3>
-            <p>Задачи: Тушение пожаров, ликвидация ДТП.</p>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="showPage('page-database', this)">
+            <div class="nav-icon">🔍</div>
+            <div>База данных</div>
         </div>
-        <div class="card">
-            <h3><span class="badge green">Механики (Car Mechanic)</span></h3>
-            <p>Задачи: Эвакуация и ремонт авто.</p>
+        <div class="nav-item" onclick="showPage('page-actions', this)">
+            <div class="nav-icon">📝</div>
+            <div>Редактор</div>
+        </div>
+        <div class="nav-item" onclick="showPage('page-settings', this)">
+            <div class="nav-icon">⚙️</div>
+            <div>Инфо</div>
         </div>
     </div>
 
     <script>
-        // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Расширяет окно на весь экран приложения
+        tg.expand();
 
-        // Логика переключения вкладок
-        function switchTab(tabId) {
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
+        // Переключение вкладок через нижнее меню
+        function showPage(pageId, element) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            
+            document.getElementById(pageId).classList.add('active');
+            element.classList.add('active');
+        }
 
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+        // Поиск игроков в реальном времени
+        function searchPlayer() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.querySelectorAll('.player-card');
+            
+            cards.forEach(card => {
+                let name = card.getAttribute('data-name');
+                if(name) {
+                    if (name.toLowerCase().includes(input)) {
+                        card.style.display = "block";
+                    } else {
+                        card.style.display = "none";
+                    }
+                }
+            });
         }
     </script>
 </body>
